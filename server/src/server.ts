@@ -7,6 +7,7 @@ import { chatRouter } from "./routes/chatRoutes";
 import { webhookRouter } from "./routes/webhookRoutes";
 import { versioningRouter } from "./routes/versioningRoutes";
 import { governanceRouter } from "./routes/governanceRoutes"; // Issue #113
+import { runBackup, getBackupHealth } from "./services/backupService";
 
 const app = express();
 
@@ -26,13 +27,17 @@ app.use("/api/versions", versioningRouter);
 app.use("/api/governance", governanceRouter); // Issue #113
 
 app.get("/health", async (req, res) => {
-  const state = await IndexerState.findOne({ key: "prompt_hash_contract" });
+  const [state, backupHealth] = await Promise.all([
+    IndexerState.findOne({ key: "prompt_hash_contract" }),
+    getBackupHealth(),
+  ]);
   res.json({
     status: "ok",
     indexer: {
       lastProcessedLedger: state?.lastIndexedLedger || 0,
       timestamp: new Date(),
     },
+    backup: backupHealth,
   });
 });
 
@@ -43,4 +48,19 @@ app.listen(port, () => {
   startIndexer().catch((err) => {
     console.error("Failed to start Soroban Indexer:", err);
   });
+
+  // DAILY AUTOMATED BACKUP — runs immediately on startup then every 24 h.
+  // Use BACKUP_S3_BUCKET env var to enable; silently skips if not configured.
+  if (process.env.BACKUP_S3_BUCKET) {
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+    const triggerBackup = () => {
+      runBackup().catch((err) => {
+        console.error("[backup] Scheduled backup failed:", err?.message ?? err);
+      });
+    };
+    // Run once on startup, then on a 24-hour interval.
+    triggerBackup();
+    setInterval(triggerBackup, TWENTY_FOUR_HOURS);
+    console.log("[backup] Daily backup scheduler started.");
+  }
 });
