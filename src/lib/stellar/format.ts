@@ -17,9 +17,20 @@ export function xlmToStroops(xlm: number): bigint {
 /**
  * Formats an address for display (truncated)
  */
-export function formatAddress(address: string, prefixLength = 8, suffixLength = 4): string {
+export function formatAddress(
+  address: string,
+  prefixLength = 8,
+  suffixLength = 4,
+): string {
   if (address.length <= prefixLength + suffixLength) {
     return address;
   }
   return `${address.slice(0, prefixLength)}...${address.slice(-suffixLength)}`;
+}
+
+/**
+ * Formats a stroop amount as a compact XLM price label.
+ */
+export function formatPriceLabel(stroops: bigint): string {
+  return `${stroopsToXlmString(stroops)} XLM`;
 }

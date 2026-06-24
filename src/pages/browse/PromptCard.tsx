@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
   Bookmark,
@@ -190,9 +191,14 @@ export const PromptCard = ({
             <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
             </div>
-            <p className="truncate text-xs font-medium text-slate-400">
+            <Link
+              to={`/sellers/${encodeURIComponent(prompt.creator)}`}
+              className="truncate text-xs font-medium text-slate-400 transition-colors hover:text-emerald-300"
+              onClick={(event) => event.stopPropagation()}
+              aria-label={`View seller ${prompt.creator}`}
+            >
               {shortenAddress(prompt.creator)}
-            </p>
+            </Link>
           </div>
 
           {hasAccess ? (

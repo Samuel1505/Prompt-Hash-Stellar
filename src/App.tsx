@@ -6,8 +6,11 @@ const BrowsePage = lazy(() => import("./pages/browse/page.jsx"));
 const SellPage = lazy(() => import("./pages/sell/page.tsx"));
 const ChatHome = lazy(() => import("./pages/chat/page.tsx"));
 const ProfilePage = lazy(() => import("./pages/profile/page.tsx"));
-const MyPurchasesPage = lazy(() => import("./pages/profile/MyPurchasesPage.tsx"));
+const MyPurchasesPage = lazy(
+  () => import("./pages/profile/MyPurchasesPage.tsx"),
+);
 const StatusPage = lazy(() => import("./pages/status/page.tsx"));
+const SellerPage = lazy(() => import("./pages/sellers/page.tsx"));
 
 const AppLayout = () => (
   <main className="min-h-screen bg-slate-950 text-white">
@@ -33,6 +36,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/purchases" element={<MyPurchasesPage />} />
           <Route path="/status" element={<StatusPage />} />
+          <Route path="/sellers/:sellerId" element={<SellerPage />} />
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>
